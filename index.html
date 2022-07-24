@@ -10,9 +10,9 @@
             #top-bar {
                 display: flex;
                 color: white;
-                height: 2em;
+                height: 6rem;
                 background-color: rgb(255, 3, 3);
-                font-size: 3em;
+                font-size: 3rem;
                 justify-content: center;
                 align-items: center;
             }
@@ -23,7 +23,7 @@
 
             #ham {
                 margin-left: auto;
-                margin-right: .5em;
+                margin-right: 2rem;
             }
 
             #greeter {
@@ -32,6 +32,61 @@
                 background-size: cover;
                 background-position: center;
                 height: 50vh;
+                box-shadow: 0rem .5rem .5rem gray;
+            }
+
+            .article {
+                margin-left: 3rem;
+                margin-right: 3rem;
+                margin-top: 1rem;
+                padding: 1rem;
+                min-height: 10rem;
+
+                background-color: #f7f7e2;
+
+                display: flex;
+                box-shadow: -0.5rem .5rem .5rem gray;
+            }
+            
+            .article:last-child {
+                margin-bottom: 3rem;
+            }
+
+            .pic {
+                background-size: contain;
+                background-repeat: no-repeat;
+                min-width: 9rem;
+                height: 9rem;
+                margin-right: 2rem;
+            }
+
+            .name {
+                font-size: 2rem;
+                height: 2rem;
+                font-weight: bold;
+            }
+
+            .desc p {
+                align-items: flex-end;
+                margin-bottom: 0;
+                word-wrap: break-word;
+                margin-right: 0;
+            }
+
+            .col2 {
+                width: 80%;
+            }
+
+            .availability {
+                margin-left: auto;
+                margin-top: auto;
+                font-weight: bold;
+                text-align: right;
+            }
+
+            .footer {
+                height: 10rem;
+                background-color: rgba(33, 37, 43, 0.6);
             }
         </style>
     </head>
