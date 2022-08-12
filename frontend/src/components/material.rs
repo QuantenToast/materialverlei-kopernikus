@@ -9,7 +9,7 @@ use serde_derive::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Material {
-    pub id: u16,
+    pub id: String,
     pub name: String,
     pub description: String,
     pub pic: Option<String>,
