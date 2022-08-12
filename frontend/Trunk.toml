@@ -1,0 +1,2 @@
+[build]
+dist = "../api/src/static"

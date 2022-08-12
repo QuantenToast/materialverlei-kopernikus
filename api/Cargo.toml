@@ -7,8 +7,14 @@ authors = ["Joel Köper <jk@joelkoeper.de>"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rocket = "0.*.*"
+rocket = { version = "0.5.0-rc.2", features = ["json"] }
+rocket_contrib = "*"
 serde = "1"
 serde_derive = "1"
 serde_json = "1"
 anyhow = "1"
+mongodb = { version = "2.1", default-features = false, features = ["async-std-runtime"] }
+bson = { version = "2", features = ["chrono-0_4"] } # Needed for using chrono datetime in doc
+chrono = "0.4" # Used for setting DateTimes
+jsonwebtoken = "*"
+futures = "*"
