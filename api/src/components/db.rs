@@ -15,7 +15,7 @@ use mongodb::{
 use std::env;
 use std::error::Error;
 
-use super::material::Material;
+use super::material::{Material, MaterialRes};
 use futures::stream::StreamExt;
 
 pub async fn get_page_db(num: u32) -> Result<String, Box<dyn Error>> {
@@ -40,19 +40,26 @@ pub async fn get_page_db(num: u32) -> Result<String, Box<dyn Error>> {
         bson::doc! {
             "$limit": 50
         },
-        bson::doc! {
-            "$sort": {"$natural": 1}
-        },
+       // bson::doc! {
+       //     "$sort": {"$natural": 1}
+       // },
     ];
 
-    let mut mats: Vec<Material> = Vec::new();
+    let mut mats: Vec<MaterialRes> = Vec::new();
 
     match col.aggregate(pipeline, None).await {
         Ok(mut c) => {
             while let Some(result) = c.next().await {
                 // Use serde to deserialize into the MovieSummary struct:
                 let doc: Material = bson::from_document(result?)?;
-                mats.push(doc);
+
+                mats.push(MaterialRes {
+                    id: doc.id.unwrap().to_hex(),
+                    name: doc.name,
+                    description: doc.description,
+                    pic: doc.pic,
+                    num_available: doc.num_available
+                });
             }
         }
         Err(e) => eprintln!("{:?}", e),
