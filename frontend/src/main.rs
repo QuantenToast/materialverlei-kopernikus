@@ -1,3 +1,4 @@
+extern crate reqwasm;
 extern crate serde;
 extern crate serde_derive;
 extern crate yew;
@@ -7,24 +8,37 @@ use yew::prelude::*;
 mod components;
 use components::material::*;
 
+use reqwasm::http::Request;
+
 #[function_component(App)]
 fn app_component() -> Html {
-    let mat1 = Material {
-        id: "1".to_string(),
-        description: "Lorem ipsum dolor sit amet, cdiam vulputate ut. Malesuada fames ac turpis egestas. Montes nascetur ridiculus mus mauris vitae ultricies leo. Tempus egestas sed sed risus pretium quam vulputate dignissim suspendisse. Ac orci phasellus egestas tellus rutrum tellus pellentesque eu. In dictum non consectetur a erat. Quis imperdiet massa tincidunt nunc pulvinar sapien et ligula ullamcorper. Nunc vel risus commodo viverra maecenas accumsan lacus vel. Fermentum leo vel orci porta non.".to_string(),
-        name: "mat1".to_string(),
-        num_available: 1,
-        pic: Some("http://www.jurtenland.de/images/stories/material/kohte%20grundmuster.jpg".to_string())
-    };
-    let mat2 = Material {
-        id: "2".to_string(),
-        description: "".to_string(),
-        name: "mat2".to_string(),
-        num_available: 0,
-        pic: None,
-    };
+    let material = Box::new(use_state(|| None));
+    let error = Box::new(use_state(|| None));
+    let retry = {
+        let material = material.clone();
+        let error = error.clone();
+        Callback::from(move |_| {
+            let material = material.clone();
+            let error = error.clone();
+            wasm_bindgen_futures::spawn_local(async move {
+                let material_endpoint = format!("http://81.169.248.14:8000/api/{page}", page = 0);
+                let fetched_material = Request::get(&material_endpoint).send().await;
 
-    let mats = vec![mat1, mat2];
+                match fetched_material {
+                    Ok(response) => {
+                        let json: Result<MaterialListComponentProps, _> = response.json().await;
+                        match json {
+                            Ok(f) => {
+                                material.set(Some(f));
+                            }
+                            Err(e) => error.set(Some(e.to_string())),
+                        }
+                    }
+                    Err(e) => error.set(Some(e.to_string())),
+                }
+            });
+        })
+    };
 
     html! {
         <div id="main-container">
@@ -38,7 +52,29 @@ fn app_component() -> Html {
                 <div id="util-bar"/>
             </div>
             <div id="greeter"/>
-            <MaterialListComponent materialien={mats.clone()} />
+            {
+                match (*material).as_ref() {
+                    Some(m) => html! {<MaterialListComponent materialien={m.materialien.clone()}/>},
+                    None => match (*error).as_ref() {
+                        Some(e) => {
+                            html! {
+                                <div>
+                                    {"error"} {e}
+                                    <button onclick={retry}>{"retry"}</button>
+                                </div>
+                            }
+                        }
+                        None => {
+                            html! {
+                                <div>
+                                    {"No data yet"}
+                                    <button onclick={retry}>{"Call API"}</button>
+                                </div>
+                            }
+                        }
+                    },
+                }
+            }
             <div class="footer"/>
         </div>
     }

@@ -21,7 +21,7 @@ pub struct MaterialComponentProps {
     pub material: Material,
 }
 
-#[derive(PartialEq, Properties, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Properties, Clone)]
 pub struct MaterialListComponentProps {
     pub materialien: Vec<Material>,
 }
