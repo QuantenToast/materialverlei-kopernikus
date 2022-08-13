@@ -21,7 +21,7 @@ fn app_component() -> Html {
             let material = material.clone();
             let error = error.clone();
             wasm_bindgen_futures::spawn_local(async move {
-                let url = format!("http://81.169.248.14:8000/api/{page}", page = 0);
+                let url = format!("http://81.169.248.14/api/{page}", page = 0);
                 let fetched_material = Request::get(&url).send().await;
 
                 match fetched_material {
