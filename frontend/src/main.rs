@@ -21,20 +21,20 @@ fn app_component() -> Html {
             let material = material.clone();
             let error = error.clone();
             wasm_bindgen_futures::spawn_local(async move {
-                let material_endpoint = format!("http://81.169.248.14:8000/api/{page}", page = 0);
-                let fetched_material = Request::get(&material_endpoint).send().await;
+                let url = format!("http://81.169.248.14:8000/api/{page}", page = 0);
+                let fetched_material = Request::get(&url).send().await;
 
                 match fetched_material {
                     Ok(response) => {
-                        let json: Result<MaterialListComponentProps, _> = response.json().await;
+                        let json: Result<Vec<Material>, _> = response.json().await;
                         match json {
                             Ok(f) => {
                                 material.set(Some(f));
                             }
-                            Err(e) => error.set(Some(e.to_string())),
+                            Err(e) => error.set(Some(format!("parser: {e}"))),
                         }
                     }
-                    Err(e) => error.set(Some(e.to_string())),
+                    Err(e) => error.set(Some(format!("server: {e}"))),
                 }
             });
         })
@@ -54,7 +54,7 @@ fn app_component() -> Html {
             <div id="greeter"/>
             {
                 match (*material).as_ref() {
-                    Some(m) => html! {<MaterialListComponent materialien={m.materialien.clone()}/>},
+                    Some(m) => html! {<MaterialListComponent materialien={m.clone()}/>},
                     None => match (*error).as_ref() {
                         Some(e) => {
                             html! {
