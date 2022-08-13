@@ -7,7 +7,6 @@ use yew::prelude::*;
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct Material {
     pub id: String,
     pub name: String,
