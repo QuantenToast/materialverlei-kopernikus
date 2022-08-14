@@ -12,33 +12,32 @@ use reqwasm::http::Request;
 
 #[function_component(App)]
 fn app_component() -> Html {
-    let material = Box::new(use_state(|| None));
-    let error = Box::new(use_state(|| None));
-    let retry = {
+    let material = use_state(|| Vec::new());
+    let error = use_state(|| String::new());
+    {
         let material = material.clone();
         let error = error.clone();
-        Callback::from(move |_| {
-            let material = material.clone();
-            let error = error.clone();
-            wasm_bindgen_futures::spawn_local(async move {
-                let url = format!("http://81.169.248.14/api/{page}", page = 0);
-                let fetched_material = Request::get(&url).send().await;
+        use_effect_with_deps(
+            move |_| {
+                let material = material.clone();
+                let error = error.clone();
+                wasm_bindgen_futures::spawn_local(async move {
+                    let url = format!("http://81.169.248.14/api/{page}", page = 0);
+                    let fetched_material = Request::get(&url).send().await;
 
-                match fetched_material {
-                    Ok(response) => {
-                        let json: Result<Vec<Material>, _> = response.json().await;
-                        match json {
-                            Ok(f) => {
-                                material.set(Some(f));
-                            }
-                            Err(e) => error.set(Some(format!("parser: {e}"))),
-                        }
-                    }
-                    Err(e) => error.set(Some(format!("server: {e}"))),
-                }
-            });
-        })
-    };
+                    match fetched_material {
+                        Ok(response) => match response.json().await {
+                            Ok(f) => material.set(f),
+                            Err(e) => error.set(format!("parser: {e}")),
+                        },
+                        Err(e) => error.set(format!("server: {e}")),
+                    };
+                });
+                || ()
+            },
+            (),
+        )
+    }
 
     html! {
         <div id="main-container">
@@ -52,29 +51,7 @@ fn app_component() -> Html {
                 <div id="util-bar"/>
             </div>
             <div id="greeter"/>
-            {
-                match (*material).as_ref() {
-                    Some(m) => html! {<MaterialListComponent materialien={m.clone()}/>},
-                    None => match (*error).as_ref() {
-                        Some(e) => {
-                            html! {
-                                <div>
-                                    {"error"} {e}
-                                    <button onclick={retry}>{"retry"}</button>
-                                </div>
-                            }
-                        }
-                        None => {
-                            html! {
-                                <div>
-                                    {"No data yet"}
-                                    <button onclick={retry}>{"Call API"}</button>
-                                </div>
-                            }
-                        }
-                    },
-                }
-            }
+            <MaterialListComponent materialien={(*material).clone()}/>
             <div class="footer"/>
         </div>
     }
