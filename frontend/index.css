@@ -5,9 +5,9 @@ body {
 #top-bar {
     display: flex;
     color: white;
-    height: 2em;
+    height: 6rem;
     background-color: rgb(255, 3, 3);
-    font-size: 3em;
+    font-size: 3rem;
     justify-content: center;
     align-items: center;
 }
@@ -18,7 +18,7 @@ body {
 
 #ham {
     margin-left: auto;
-    margin-right: .5em;
+    margin-right: 2rem;
 }
 
 #greeter {
@@ -27,4 +27,64 @@ body {
     background-size: cover;
     background-position: center;
     height: 50vh;
+    box-shadow: 0rem .5rem .5rem gray;
+}
+
+.article {
+    margin-left: 3rem;
+    margin-right: 3rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    min-height: 10rem;
+    background-color: #f7f7e2;
+    position: relative;
+    display: flow-root;
+    box-shadow: -0.5rem .5rem .5rem gray;
+}
+
+.article:last-child {
+    margin-bottom: 3rem;
+}
+
+.pic {
+    background-size: contain;
+    background-repeat: no-repeat;
+    min-width: 9rem;
+    height: 9rem;
+    margin-right: 2rem;
+    float: left;
+}
+
+.name {
+    font-size: 2rem;
+    height: 2rem;
+    font-weight: bold;
+    position: absolute;
+    left: 12rem;
+}
+
+.desc {
+	margin-bottom: 1.5rem;
+}
+
+.desc p {
+    margin-bottom: 0;
+    word-wrap: break-word;
+    margin-right: 0;
+}
+
+.col2 {
+    display: contents;
+}
+
+.availability {
+    font-weight: bold;
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+}
+
+.footer {
+    height: 10rem;
+    background-color: rgba(33, 37, 43, 0.6);
 }
