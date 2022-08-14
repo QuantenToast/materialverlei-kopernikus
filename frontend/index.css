@@ -61,6 +61,7 @@ body {
     font-weight: bold;
     position: absolute;
     left: 12rem;
+    overflow: hidden;
 }
 
 .desc {
