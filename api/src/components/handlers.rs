@@ -1,4 +1,3 @@
-use std::env;
 use std::error::Error;
 
 use rocket::http::Status;
@@ -11,14 +10,6 @@ pub async fn get_page(num: u32) -> Result<String, Status> {
         .await
         .map(|v| v)
         .map_err(|e| error_status(e))
-}
-
-fn host() -> String {
-    env::var("ROCKET_ADDRESS").expect("ROCKET_ADDRESS must be set")
-}
-
-fn port() -> String {
-    env::var("ROCKET_PORT").expect("ROCKET_PORT must be set")
 }
 
 fn error_status(e: Box<dyn Error>) -> Status {

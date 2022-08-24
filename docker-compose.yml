@@ -1,0 +1,24 @@
+version: "3.7"
+services:
+  database:
+    image: mongo
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - 27017:27017
+    volumes:
+      - data:/var/lib/mongodb/data
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: .env
+    depends_on:
+      - database
+    networks:
+      - default
+    ports:
+    - 80:80
+volumes:
+  data:
