@@ -1,4 +1,4 @@
-FROM rust:latest AS build
+FROM rust:alpine3.16 AS build
 
 RUN rustup default nightly
 RUN rustup target add wasm32-unknown-unknown
@@ -14,7 +14,7 @@ WORKDIR /app/api
 RUN cargo build --release
 
 
-FROM ubuntu:latest
+FROM ubuntu:kinetic-20220830
 
 COPY --from=build /app/target/release/web /usr/local/bin/
 RUN mkdir /usr/local/bin/static/
