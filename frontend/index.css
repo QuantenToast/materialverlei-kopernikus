@@ -5,7 +5,7 @@ body {
 #top-bar {
     display: flex;
     color: white;
-    height: 6rem;
+    height: 7rem;
     background-color: rgb(255, 3, 3);
     font-size: 3rem;
     justify-content: center;
