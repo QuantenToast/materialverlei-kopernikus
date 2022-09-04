@@ -90,3 +90,10 @@ body {
     height: 10rem;
     background-color: rgba(33, 37, 43, 0.6);
 }
+
+@media (max-width: 600) {
+	.article {
+		margin-right: 0;
+		margin-left: 0;
+	}
+}
