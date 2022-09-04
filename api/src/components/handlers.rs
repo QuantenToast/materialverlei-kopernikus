@@ -25,7 +25,7 @@ pub async fn index() -> Result<NamedFile, NotFound<String>> {
     get_index().await
 }
 
-#[get("/<num>", rank = 2)]
+#[get("/<num>", rank = 0)]
 pub async fn get_page(num: u32) -> Result<String, (Status, &'static str)> {
     get_page_db(num)
         .await
