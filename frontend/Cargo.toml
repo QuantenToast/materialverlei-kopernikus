@@ -7,7 +7,8 @@ authors = ["Joel Köper <jk@joelkoeper.de>"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-yew = "0.19.3"
+yew = "0.19"
+yew-router = "0.16"
 wasm-bindgen-futures = "0.4.32"
 reqwasm = "0.5.0"
 serde = "1"
