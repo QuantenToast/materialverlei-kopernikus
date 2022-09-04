@@ -31,8 +31,8 @@ body {
 }
 
 .article {
-    margin-left: 3rem;
-    margin-right: 3rem;
+    margin-left: 0rem;
+    margin-right: 0rem;
     margin-top: 1rem;
     padding: 1rem;
     min-height: 10rem;
@@ -91,9 +91,9 @@ body {
     background-color: rgba(33, 37, 43, 0.6);
 }
 
-@media (max-width: 600) {
+@media (min-width: 600px) {
 	.article {
-		margin-right: 0;
-		margin-left: 0;
+		margin-right: 3rem;
+		margin-left: 3rem;
 	}
 }
