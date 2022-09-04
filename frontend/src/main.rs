@@ -1,8 +1,3 @@
-extern crate reqwasm;
-extern crate serde;
-extern crate serde_derive;
-extern crate yew;
-
 use yew::prelude::*;
 
 mod components;

@@ -1,7 +1,3 @@
-extern crate serde;
-extern crate serde_derive;
-extern crate yew;
-
 use yew::prelude::*;
 
 use serde_derive::{Deserialize, Serialize};

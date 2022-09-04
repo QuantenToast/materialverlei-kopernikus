@@ -7,11 +7,10 @@ extern crate rocket;
 extern crate rocket_contrib;
 
 use components::handlers;
-use rocket::fs::FileServer;
 
 #[launch]
 async fn rocket() -> _ {
     rocket::build()
-        .mount("/", FileServer::from("static"))
         .mount("/api/", routes![handlers::get_page])
+        .mount("/", routes![handlers::index, handlers::static_files])
 }

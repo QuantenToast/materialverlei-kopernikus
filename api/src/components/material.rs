@@ -1,8 +1,5 @@
-extern crate serde;
-extern crate serde_derive;
-
-use serde_derive::{Deserialize, Serialize};
 use mongodb::bson::oid::ObjectId;
+use serde_derive::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct Material {

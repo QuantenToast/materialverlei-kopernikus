@@ -1,11 +1,3 @@
-extern crate bson;
-extern crate chrono;
-extern crate futures;
-extern crate mongodb;
-extern crate serde;
-extern crate serde_derive;
-extern crate serde_json;
-
 use bson::Document;
 
 use mongodb::{
@@ -13,12 +5,13 @@ use mongodb::{
     Client,
 };
 use std::env;
-use std::error::Error;
 
 use super::material::{Material, MaterialRes};
 use futures::stream::StreamExt;
 
-pub async fn get_page_db(num: u32) -> Result<String, Box<dyn Error>> {
+use anyhow::Result;
+
+pub async fn get_page_db(num: u32) -> Result<String> {
     // Load the MongoDB connection string from an environment variable:
     let client_uri =
         env::var("MONGODB_URI").expect("You must set the MONGODB_URI environment var!");
@@ -40,9 +33,9 @@ pub async fn get_page_db(num: u32) -> Result<String, Box<dyn Error>> {
         bson::doc! {
             "$limit": 50
         },
-       // bson::doc! {
-       //     "$sort": {"$natural": 1}
-       // },
+        // bson::doc! {
+        //     "$sort": {"$natural": 1}
+        // },
     ];
 
     let mut mats: Vec<MaterialRes> = Vec::new();
@@ -58,7 +51,7 @@ pub async fn get_page_db(num: u32) -> Result<String, Box<dyn Error>> {
                     name: doc.name,
                     description: doc.description,
                     pic: doc.pic,
-                    num_available: doc.num_available
+                    num_available: doc.num_available,
                 });
             }
         }
