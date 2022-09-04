@@ -1,4 +1,4 @@
-FROM rust:alpine3.16 AS build
+FROM rust:1.63.0-slim-bullseye AS build
 
 RUN rustup default nightly
 RUN rustup target add wasm32-unknown-unknown
