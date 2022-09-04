@@ -11,7 +11,7 @@ pub async fn get_index() -> Result<NamedFile, NotFound<String>> {
         .map_err(|e| NotFound(e.to_string()))
 }
 
-#[get("/<path..>", rank = 2)]
+#[get("/<path..>", rank = 3)]
 pub async fn static_files(path: PathBuf) -> Result<NamedFile, NotFound<String>> {
     let path = PathBuf::from("static").join(path);
     match NamedFile::open(path).await {
@@ -25,7 +25,7 @@ pub async fn index() -> Result<NamedFile, NotFound<String>> {
     get_index().await
 }
 
-#[get("/<num>", rank = 3)]
+#[get("/<num>", rank = 2)]
 pub async fn get_page(num: u32) -> Result<String, (Status, &'static str)> {
     get_page_db(num)
         .await
