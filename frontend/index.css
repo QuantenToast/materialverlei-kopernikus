@@ -7,13 +7,14 @@ body {
     color: white;
     height: 7rem;
     background-color: rgb(255, 3, 3);
-    font-size: 3rem;
     justify-content: center;
     align-items: center;
 }
 
 #title {
     margin-left: auto;
+    font-size: 2.7rem;
+    word-break: break-word;
 }
 
 #ham {
@@ -62,6 +63,7 @@ body {
     position: absolute;
     left: 12rem;
     overflow: hidden;
+    line-height: 2rem;
 }
 
 .desc {
@@ -92,6 +94,10 @@ body {
 }
 
 @media (min-width: 600px) {
+	#title {
+		font-size: 3rem;
+	}
+
 	.article {
 		margin-right: 3rem;
 		margin-left: 3rem;
