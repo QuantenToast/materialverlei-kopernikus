@@ -8,6 +8,7 @@ use jsonwebtoken::{
     decode, encode, errors::Error, Algorithm, DecodingKey, EncodingKey, Header, Validation,
 };
 
+use super::db::get_user;
 use super::err::ApiKeyError;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -16,14 +17,35 @@ pub struct LoginRequest {
     pub password: String,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct User {
+    pub uname: String,
+    pub pwd: String,
+    pub role: Role,
+}
+
 #[derive(Serialize, Debug)]
 pub struct LoginResponse {
     pub token: String,
 }
 
+pub async fn req_login(lr: LoginRequest) -> std::result::Result<LoginResponse, Status> {
+    match get_user(&lr.username).await {
+        Ok(v) => {
+            if v.pwd != lr.password {
+                return Err(Status::Unauthorized);
+            }
+            create_jwt(&v.uname, &v.role)
+                .map(|login_response| login_response)
+                .map_err(|_| Status::NotAcceptable)
+        }
+        Err(_) => Err(Status::NotAcceptable),
+    }
+}
+
 const JWT_SECRET: &[u8] = b"verleiSecret123";
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub enum Role {
     User,
     Admin,

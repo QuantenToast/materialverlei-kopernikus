@@ -1,4 +1,4 @@
-use bson::Document;
+use bson::{doc, Document};
 
 use mongodb::{
     options::{ClientOptions, ResolverConfig},
@@ -6,12 +6,16 @@ use mongodb::{
 };
 use std::env;
 
-use super::material::{Material, MaterialRes};
+use super::{
+    err::ApiKeyError,
+    material::{Material, MaterialRes},
+};
 use futures::stream::StreamExt;
 
+use super::loginhandler::User;
 use anyhow::Result;
 
-pub async fn get_page_db(num: u32) -> Result<String> {
+async fn get_conn() -> mongodb::error::Result<Client> {
     // Load the MongoDB connection string from an environment variable:
     let client_uri =
         env::var("MONGODB_URI").expect("You must set the MONGODB_URI environment var!");
@@ -21,7 +25,11 @@ pub async fn get_page_db(num: u32) -> Result<String> {
     let options =
         ClientOptions::parse_with_resolver_config(&client_uri, ResolverConfig::cloudflare())
             .await?;
-    let client = Client::with_options(options)?;
+    Client::with_options(options)
+}
+
+pub async fn get_page_db(num: u32) -> Result<String> {
+    let client = get_conn().await?;
 
     let col: mongodb::Collection<Document> =
         client.database("material-verlei").collection("materialien");
@@ -61,4 +69,30 @@ pub async fn get_page_db(num: u32) -> Result<String> {
     let res = serde_json::to_string(&mats)?;
 
     Ok(res)
+}
+
+pub async fn get_user(usr: &String) -> Result<User> {
+    let conn = get_conn().await?;
+
+    let col: mongodb::Collection<Document> = conn.database("material-verlei").collection("users");
+    match col
+        .find_one(
+            doc! {
+                "username": usr
+            },
+            None,
+        )
+        .await?
+    {
+        Some(c) => {
+            let doc: User = bson::from_document(c)?;
+
+            Ok(User {
+                uname: doc.uname,
+                pwd: doc.pwd,
+                role: doc.role,
+            })
+        }
+        None => Err(ApiKeyError::Invalid.into()),
+    }
 }

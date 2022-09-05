@@ -1,18 +1,35 @@
 use rocket::http::Status;
+use rocket::serde::json::Json;
 
-use super::{db::get_page_db, err::ApiKeyError};
+use super::{
+    db::get_page_db,
+    err::ApiKeyError,
+    loginhandler::{req_login, LoginRequest, LoginResponse, Token},
+};
 use rocket::fs::NamedFile;
-use rocket::response::status::NotFound;
+use rocket::response::status::*;
 use std::path::PathBuf;
 
-pub async fn get_index() -> Result<NamedFile, NotFound<String>> {
-    NamedFile::open("static/index.html")
+#[get("/<num>", rank = 0)]
+pub async fn get_page(num: u32) -> Result<String, Status> {
+    get_page_db(num)
         .await
-        .map_err(|e| NotFound(e.to_string()))
+        .map(|v| v)
+        .map_err(|e| error_status(e))
+}
+
+#[get("/", rank = 1)]
+pub async fn index() -> Result<NamedFile, Status> {
+    get_index().await
+}
+
+#[post("/", format = "application/json", data = "<lr>")]
+pub async fn authenticate(lr: Json<LoginRequest>) -> Result<Json<LoginResponse>, Status> {
+    req_login(lr.into_inner()).await.map(|v| Json(v))
 }
 
 #[get("/<path..>", rank = 3)]
-pub async fn static_files(path: PathBuf) -> Result<NamedFile, NotFound<String>> {
+pub async fn static_files(path: PathBuf, _auth: Token) -> Result<NamedFile, Status> {
     let path = PathBuf::from("static").join(path);
     match NamedFile::open(path).await {
         Ok(f) => Ok(f),
@@ -20,24 +37,14 @@ pub async fn static_files(path: PathBuf) -> Result<NamedFile, NotFound<String>> 
     }
 }
 
-#[get("/", rank = 1)]
-pub async fn index() -> Result<NamedFile, NotFound<String>> {
-    get_index().await
-}
-
-#[get("/<num>", rank = 0)]
-pub async fn get_page(num: u32) -> Result<String, (Status, &'static str)> {
-    get_page_db(num)
+pub async fn get_index() -> Result<NamedFile, Status> {
+    NamedFile::open("static/index.html")
         .await
-        .map(|v| v)
-        .map_err(|e| error_status(e))
+        .map_err(|_| rocket::http::Status::NotFound)
 }
 
-fn error_status(e: anyhow::Error) -> (Status, &'static str) {
+fn error_status(e: anyhow::Error) -> Status {
     match e {
-        _ => {
-            eprintln!("{:?}", e);
-            (Status::BadRequest, "BadRequest")
-        }
+        _ => Status::BadRequest,
     }
 }
