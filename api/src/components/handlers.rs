@@ -28,8 +28,17 @@ pub async fn authenticate(lr: Json<LoginRequest>) -> Result<Json<LoginResponse>,
     req_login(lr.into_inner()).await.map(|v| Json(v))
 }
 
+#[get("/<path..>", rank = 2)]
+pub async fn secure(path: PathBuf, _auth: Token) -> Result<NamedFile, Status> {
+    let path = PathBuf::from("static").join(path);
+    match NamedFile::open(path).await {
+        Ok(f) => Ok(f),
+        Err(_) => get_index().await,
+    }
+}
+
 #[get("/<path..>", rank = 3)]
-pub async fn static_files(path: PathBuf, _auth: Token) -> Result<NamedFile, Status> {
+pub async fn static_files(path: PathBuf) -> Result<NamedFile, Status> {
     let path = PathBuf::from("static").join(path);
     match NamedFile::open(path).await {
         Ok(f) => Ok(f),
