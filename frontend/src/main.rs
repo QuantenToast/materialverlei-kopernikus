@@ -76,7 +76,7 @@ fn app_component() -> Html {
         <div id="main-container">
             <div class="navbar">
                 <div id="top-bar">
-                    <lable id="title">{"Materialverlei Kopernikus"}</lable>
+                    <lable id="title">{"Materialverlei"}</lable>
                     <div id="ham">
                         <lable>{"≡"}</lable>
                     </div>

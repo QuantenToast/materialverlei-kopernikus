@@ -9,12 +9,12 @@ body {
     background-color: rgb(255, 3, 3);
     justify-content: center;
     align-items: center;
+    font-size: 2.7rem;
+    word-break: break-word;
 }
 
 #title {
     margin-left: auto;
-    font-size: 2.7rem;
-    word-break: break-word;
 }
 
 #ham {
@@ -94,7 +94,7 @@ body {
 }
 
 @media (min-width: 600px) {
-	#title {
+	#top-bar {
 		font-size: 3rem;
 	}
 
