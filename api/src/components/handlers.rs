@@ -26,7 +26,7 @@ pub async fn authenticate(lr: Json<LoginRequest>) -> Result<Json<LoginResponse>,
     req_login(lr.into_inner()).await.map(|v| Json(v))
 }
 
-#[get("/<first>/<path..>", rank = 2)]
+#[get("/<first>/<path..>", rank = 3)]
 pub async fn secure(first: PathBuf, path: PathBuf, _auth: Token) -> Result<NamedFile, Status> {
     let path = PathBuf::from("static").join(first).join(path);
     match NamedFile::open(path).await {
@@ -35,7 +35,7 @@ pub async fn secure(first: PathBuf, path: PathBuf, _auth: Token) -> Result<Named
     }
 }
 
-#[get("/<object>", rank = 3)]
+#[get("/<object>", rank = 2)]
 pub async fn static_files(object: PathBuf) -> Result<NamedFile, Status> {
     NamedFile::open(PathBuf::from("static").join(object))
         .await
