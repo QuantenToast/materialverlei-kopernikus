@@ -15,6 +15,11 @@ async fn rocket() -> _ {
         .mount("/auth/", routes![handlers::authenticate])
         .mount(
             "/",
-            routes![handlers::index, handlers::static_files, handlers::secure],
+            routes![
+                handlers::index,
+                handlers::check_if_file,
+                handlers::secure,
+                handlers::get_file
+            ],
         )
 }

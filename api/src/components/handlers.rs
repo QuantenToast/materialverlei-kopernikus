@@ -1,5 +1,5 @@
-use rocket::http::Status;
 use rocket::serde::json::Json;
+use rocket::{http::Status, response::Redirect};
 
 use super::{
     db::get_page_db,
@@ -26,9 +26,9 @@ pub async fn authenticate(lr: Json<LoginRequest>) -> Result<Json<LoginResponse>,
     req_login(lr.into_inner()).await.map(|v| Json(v))
 }
 
-#[get("/<first>/<path..>", rank = 3)]
-pub async fn secure(first: PathBuf, path: PathBuf, _auth: Token) -> Result<NamedFile, Status> {
-    let path = PathBuf::from("static").join(first).join(path);
+#[get("/<path..>", rank = 3)]
+pub async fn secure(path: PathBuf, _auth: Token) -> Result<NamedFile, Status> {
+    let path = PathBuf::from("static").join(path);
     match NamedFile::open(path).await {
         Ok(f) => Ok(f),
         Err(_) => get_index().await,
@@ -36,7 +36,15 @@ pub async fn secure(first: PathBuf, path: PathBuf, _auth: Token) -> Result<Named
 }
 
 #[get("/<object>", rank = 2)]
-pub async fn static_files(object: PathBuf) -> Result<NamedFile, Status> {
+pub async fn check_if_file(object: PathBuf) -> Redirect {
+    match NamedFile::open(PathBuf::from("static").join(&object)).await {
+        Ok(_) => Redirect::to(uri!(get_file(&object))),
+        Err(_) => Redirect::to(uri!(secure(object))),
+    }
+}
+
+#[get("/<object>", rank = 99)]
+pub async fn get_file(object: PathBuf) -> Result<NamedFile, Status> {
     NamedFile::open(PathBuf::from("static").join(object))
         .await
         .map_err(|_| rocket::http::Status::NotFound)
