@@ -90,6 +90,7 @@ pub fn create_jwt(usrname: &str, role: &Role) -> Result<LoginResponse, Error> {
         .map(|v| LoginResponse { token: v })
 }
 
+#[allow(dead_code)]
 pub struct Token {
     token: String,
 }
