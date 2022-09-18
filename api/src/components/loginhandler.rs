@@ -11,22 +11,13 @@ use jsonwebtoken::{
 use super::db::get_user;
 use super::err::ApiKeyError;
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct LoginRequest {
-    pub username: String,
-    pub password: String,
-}
+use shared::auth::*;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct User {
     pub uname: String,
     pub pwd: String,
     pub role: Role,
-}
-
-#[derive(Serialize, Debug)]
-pub struct LoginResponse {
-    pub token: String,
 }
 
 pub async fn req_login(lr: LoginRequest) -> std::result::Result<LoginResponse, Status> {
@@ -90,9 +81,8 @@ pub fn create_jwt(usrname: &str, role: &Role) -> Result<LoginResponse, Error> {
         .map(|v| LoginResponse { token: v })
 }
 
-#[allow(dead_code)]
 pub struct Token {
-    token: String,
+    pub token: String,
 }
 
 #[rocket::async_trait]

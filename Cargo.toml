@@ -1,7 +1,8 @@
 [workspace]
 members = [
 	"frontend",
-	"api"
+	"api",
+    "shared"
 ]
 default-members = [
 	"api"

@@ -1,25 +1,6 @@
 use yew::prelude::*;
 
-use serde_derive::{Deserialize, Serialize};
-
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
-pub struct Material {
-    pub id: String,
-    pub name: String,
-    pub description: String,
-    pub pic: Option<String>,
-    pub num_available: u32,
-}
-
-#[derive(PartialEq, Properties)]
-pub struct MaterialComponentProps {
-    pub material: Material,
-}
-
-#[derive(Serialize, Deserialize, PartialEq, Properties, Clone)]
-pub struct MaterialListComponentProps {
-    pub materialien: Vec<Material>,
-}
+use crate::types::material::{Material, MaterialComponentProps, MaterialListComponentProps};
 
 #[function_component(MaterialComponent)]
 pub fn material_component(props: &MaterialComponentProps) -> Html {

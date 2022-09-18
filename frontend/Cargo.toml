@@ -10,8 +10,13 @@ authors = ["Joel Köper <jk@joelkoeper.de>"]
 yew = "0.19"
 yew-router = "0.16"
 wasm-bindgen-futures = "0.4.32"
-reqwasm = "0.5.0"
+gloo-net = {version = "0.2.4", features = ["json"]}
+gloo-storage = "0.2.2"
+lazy_static = "1.4.0"
+parking_lot = "0.12.1"
 serde = "1"
 serde_derive = "1"
 serde_json = "1"
 anyhow = "1"
+thiserror = "1"
+shared = { path = "../shared" }

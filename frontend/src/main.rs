@@ -2,9 +2,12 @@ use yew::prelude::*;
 use yew_router::prelude::*;
 
 mod components;
+mod error;
+mod services;
+mod types;
 use components::material::*;
 
-use reqwasm::http::Request;
+use types::material::Material;
 
 #[derive(Clone, Routable, PartialEq)]
 enum Route {
@@ -55,15 +58,12 @@ fn app_component() -> Html {
                 let material = material.clone();
                 let error = error.clone();
                 wasm_bindgen_futures::spawn_local(async move {
-                    let url = format!("http://81.169.248.14/api/{page}", page = 0);
-                    let fetched_material = Request::get(&url).send().await;
+                    let fetched_material: Result<Vec<Material>, error::Error> =
+                        services::req::request_get(String::from("0")).await;
 
                     match fetched_material {
-                        Ok(response) => match response.json().await {
-                            Ok(f) => material.set(f),
-                            Err(e) => error.set(format!("parser: {e}")),
-                        },
-                        Err(e) => error.set(format!("server: {e}")),
+                        Ok(f) => material.set(f),
+                        Err(e) => error.set(format!("error: {:#?}", e)),
                     };
                 });
                 || ()
