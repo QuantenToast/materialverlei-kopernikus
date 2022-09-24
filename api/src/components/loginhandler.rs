@@ -50,6 +50,7 @@ impl Role {
         }
     }
 
+    #[allow(dead_code)]
     pub fn from_str(s: &str) -> Role {
         match s {
             "Admin" => Role::Admin,

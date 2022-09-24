@@ -28,7 +28,7 @@ pub async fn authenticate(lr: Json<LoginRequest>) -> Result<Json<LoginResponse>,
 }
 
 #[get("/<path..>", rank = 2)]
-pub async fn get_file(path: PathBuf, pauth: AuthRes) -> Result<NamedFile, Status> {
+pub async fn get_file(_path: PathBuf, pauth: AuthRes) -> Result<NamedFile, Status> {
     Ok(pauth.res?)
 }
 
