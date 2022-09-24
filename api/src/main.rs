@@ -14,5 +14,4 @@ async fn rocket() -> _ {
         .mount("/api/v1/", routes![handlers::get_page])
         .mount("/auth/", routes![handlers::authenticate])
         .mount("/", routes![handlers::index, handlers::get_file])
-        .register("/", catchers![handlers::get_sec])
 }
