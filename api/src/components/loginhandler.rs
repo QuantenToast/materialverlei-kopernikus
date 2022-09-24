@@ -77,8 +77,9 @@ pub fn create_jwt(usrname: &str, role: &Role) -> Result<LoginResponse, Error> {
         exp: expiration as usize,
     };
     let header = Header::new(Algorithm::HS256);
-    encode(&header, &claims, &EncodingKey::from_secret(JWT_SECRET))
-        .map(|v| LoginResponse { token: v })
+    encode(&header, &claims, &EncodingKey::from_secret(JWT_SECRET)).map(|v| LoginResponse {
+        token: shared::auth::Token { token: v },
+    })
 }
 
 pub struct Token {

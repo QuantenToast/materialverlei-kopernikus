@@ -11,15 +11,7 @@ use components::handlers;
 #[launch]
 async fn rocket() -> _ {
     rocket::build()
-        .mount("/api/", routes![handlers::get_page])
+        .mount("/api/v1/", routes![handlers::get_page])
         .mount("/auth/", routes![handlers::authenticate])
-        .mount(
-            "/",
-            routes![
-                handlers::index,
-                handlers::check_if_file,
-                handlers::secure,
-                handlers::get_file
-            ],
-        )
+        .mount("/", routes![handlers::index,])
 }
