@@ -1,11 +1,9 @@
 use super::{
     db::get_page_db,
-    loginhandler::{req_login, Token},
+    loginhandler::{req_login, AuthRes},
 };
 use rocket::fs::NamedFile;
 use rocket::http::Status;
-use rocket::outcome::Outcome::Success;
-use rocket::request::Request;
 use rocket::serde::json::Json;
 use std::path::PathBuf;
 
@@ -30,18 +28,8 @@ pub async fn authenticate(lr: Json<LoginRequest>) -> Result<Json<LoginResponse>,
 }
 
 #[get("/<path..>", rank = 2)]
-pub async fn get_file(path: PathBuf) -> Result<NamedFile, Status> {
-    NamedFile::open(PathBuf::from("static").join(path))
-        .await
-        .map_err(|_| rocket::http::Status::NotFound)
-}
-
-#[catch(404)]
-pub async fn get_sec(req: &Request<'_>) -> Result<NamedFile, Status> {
-    match req.guard::<Token>().await {
-        Success(_) => get_index().await,
-        _ => Err(Status::Unauthorized),
-    }
+pub async fn get_file(path: PathBuf, pauth: AuthRes) -> Result<NamedFile, Status> {
+    Ok(pauth.res?)
 }
 
 pub async fn get_index() -> Result<NamedFile, Status> {

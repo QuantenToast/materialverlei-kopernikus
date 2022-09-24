@@ -1,4 +1,4 @@
-use rocket::http::Status;
+use rocket::http::{RawStr, Status};
 use rocket::request::{self, FromRequest, Outcome, Request};
 
 use serde_derive::{Deserialize, Serialize};
@@ -82,30 +82,57 @@ pub fn create_jwt(usrname: &str, role: &Role) -> Result<LoginResponse, Error> {
     })
 }
 
+pub fn validate_jwt(token: Option<&str>) -> Result<Token, ApiKeyError> {
+    match token {
+        Some(token) => {
+            match decode::<Claims>(
+                &token,
+                &DecodingKey::from_secret(JWT_SECRET),
+                &Validation::new(Algorithm::HS256),
+            ) {
+                Ok(_) => Ok(Token {
+                    token: token.to_string(),
+                }),
+                Err(_) => Err(ApiKeyError::Invalid),
+            }
+        }
+        None => Err(ApiKeyError::Missing),
+    }
+}
+
 pub struct Token {
     pub token: String,
 }
 
+use rocket::fs::NamedFile;
+use std::path::PathBuf;
+
+pub struct AuthRes {
+    pub res: Result<NamedFile, Status>,
+}
+
 #[rocket::async_trait]
-impl<'r> FromRequest<'r> for Token {
+impl<'r> FromRequest<'r> for AuthRes {
     type Error = ApiKeyError;
 
     async fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
         let token = request.headers().get_one("token");
-        match token {
-            Some(token) => {
-                match decode::<Claims>(
-                    &token,
-                    &DecodingKey::from_secret(JWT_SECRET),
-                    &Validation::new(Algorithm::HS256),
-                ) {
-                    Ok(_) => Outcome::Success(Token {
-                        token: token.to_string(),
-                    }),
-                    Err(_) => Outcome::Failure((Status::Unauthorized, ApiKeyError::Invalid)),
-                }
-            }
-            None => Outcome::Failure((Status::Unauthorized, ApiKeyError::Missing)),
+
+        use rocket::http::Status;
+        use rocket::outcome::Outcome::*;
+
+        match NamedFile::open(
+            PathBuf::from("static").join(request.param::<PathBuf>(0).unwrap().unwrap()),
+        )
+        .await
+        {
+            Ok(v) => Success(Self { res: Ok(v) }),
+            Err(_) => match validate_jwt(token) {
+                Ok(_) => Success(AuthRes {
+                    res: Ok(super::handlers::index().await.unwrap()),
+                }),
+                Err(_) => Failure((Status::Unauthorized, ApiKeyError::Invalid)),
+            },
         }
     }
 }
