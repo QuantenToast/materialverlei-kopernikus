@@ -59,7 +59,7 @@ fn app_component() -> Html {
                 let error = error.clone();
                 wasm_bindgen_futures::spawn_local(async move {
                     let fetched_material: Result<Vec<Material>, error::Error> =
-                        services::req::request_get(String::from("0")).await;
+                        services::req::request_get(String::from("api/v1/0")).await;
 
                     match fetched_material {
                         Ok(f) => material.set(f),
