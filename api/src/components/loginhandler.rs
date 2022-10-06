@@ -1,5 +1,6 @@
-use rocket::http::{RawStr, Status};
-use rocket::request::{self, FromRequest, Outcome, Request};
+use rocket::http::Status;
+use rocket::outcome::Outcome::*;
+use rocket::request::{self, FromRequest, Request};
 
 use serde_derive::{Deserialize, Serialize};
 
@@ -118,9 +119,6 @@ impl<'r> FromRequest<'r> for AuthRes {
 
     async fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
         let token = request.headers().get_one("token");
-
-        use rocket::http::Status;
-        use rocket::outcome::Outcome::*;
 
         match NamedFile::open(
             PathBuf::from("static").join(request.param::<PathBuf>(0).unwrap().unwrap()),
