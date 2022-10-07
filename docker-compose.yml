@@ -19,6 +19,11 @@ services:
     networks:
       - default
     ports:
-    - 443:443
+      - 443:443
+    volumes:
+      - certs:/etc/letsencrypt/
 volumes:
   data:
+  certs:
+    external: true
+    read_only: true
