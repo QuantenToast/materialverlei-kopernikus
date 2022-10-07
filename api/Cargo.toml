@@ -23,3 +23,5 @@ chrono = "0.4" # Used for setting DateTimes
 jsonwebtoken = "*"
 futures = "*"
 shared = { path = "../shared" }
+sha3 = "0.10.5"
+hex = "0.4.3"

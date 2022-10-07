@@ -24,7 +24,12 @@ pub struct User {
 pub async fn req_login(lr: LoginRequest) -> std::result::Result<LoginResponse, Status> {
     match get_user(&lr.username).await {
         Ok(v) => {
-            if v.pwd != lr.password {
+            use hex;
+            use sha3::{Digest, Sha3_256};
+            let mut hasher = Sha3_256::new();
+            hasher.update(v.pwd.as_bytes());
+            let pwd = hex::encode(hasher.finalize());
+            if pwd != lr.password {
                 return Err(Status::Unauthorized);
             }
             create_jwt(&v.uname, &v.role)
@@ -78,7 +83,7 @@ pub fn create_jwt(usrname: &str, role: &Role) -> Result<LoginResponse, Error> {
         role: role.to_string(),
         exp: expiration as usize,
     };
-    let header = Header::new(Algorithm::HS256);
+    let header = Header::new(Algorithm::EdDSA);
     encode(&header, &claims, &EncodingKey::from_secret(JWT_SECRET)).map(|v| LoginResponse {
         token: shared::auth::Token { token: v },
     })
@@ -90,7 +95,7 @@ pub fn validate_jwt(token: Option<&str>) -> Result<Token, ApiKeyError> {
             match decode::<Claims>(
                 &token,
                 &DecodingKey::from_secret(JWT_SECRET),
-                &Validation::new(Algorithm::HS256),
+                &Validation::new(Algorithm::EdDSA),
             ) {
                 Ok(_) => Ok(Token {
                     token: token.to_string(),
