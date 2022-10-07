@@ -2,6 +2,9 @@
 address = "0.0.0.0"
 log_level = "critical"
 
+[debug]
+address = "0.0.0.0"
+
 [default.tls]
-certs = "/etc/letsencrypt/live/h2939250.stratoserver.net/fullchain.pem"
-key = "/etc/letsencrypt/live/h2939250.stratoserver.net/privkey.pem"
+certs = "/ssl/fullchain.pem"
+key = "/ssl/privkey.pem"

@@ -8,18 +8,22 @@ WORKDIR /app
 COPY . .
 
 WORKDIR /app/frontend
-RUN trunk build --release
+RUN trunk build
 
 WORKDIR /app/api
-RUN cargo build --release
+RUN cargo build
 
 
 FROM ubuntu:kinetic-20220830
 
-COPY --from=build /app/target/release/web /usr/local/bin/
+COPY --from=build /app/target/debug/web /usr/local/bin/
 RUN mkdir /usr/local/bin/static/
 COPY --from=build /app/frontend/dist/* /usr/local/bin/static/
 COPY --from=build /app/frontend/index.css /usr/local/bin/static/
+
+RUN mkdir /ssl/
+COPY etc/letsencrypt/live/h2939250.stratoserver.net/fullchain.pem /ssl/
+COPY etc/letsencrypt/live/h2939250.stratoserver.net/privkey.pem /ssl/
 
 EXPOSE 443 443
 
