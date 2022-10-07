@@ -21,7 +21,7 @@ services:
     ports:
       - 443:443
     volumes:
-      - certs:/etc/letsencrypt/:/etc/letsencrypt/:ro
+      - certs:/etc/letsencrypt/:ro
 volumes:
   data:
   certs:
