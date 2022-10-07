@@ -21,9 +21,11 @@ services:
     ports:
       - 443:443
     volumes:
-      - certs:/etc/letsencrypt/
+      - type: volume
+        source: certs:/etc/letsencrypt/
+        target: /etc/letsencrypt/
+        read_only: true
 volumes:
   data:
   certs:
     external: true
-    read_only: true
