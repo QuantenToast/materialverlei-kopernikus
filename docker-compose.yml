@@ -19,6 +19,6 @@ services:
     networks:
       - default
     ports:
-    - 80:8000
+    - 443:8000
 volumes:
   data:
