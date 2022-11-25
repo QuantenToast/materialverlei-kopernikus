@@ -1,4 +1,4 @@
-use rocket::http::{RawStr, Status};
+use rocket::http::Status;
 use rocket::request::{self, FromRequest, Outcome, Request};
 
 use serde_derive::{Deserialize, Serialize};
@@ -18,6 +18,7 @@ pub struct User {
     pub uname: String,
     pub pwd: String,
     pub role: Role,
+    pub email: String,
 }
 
 pub async fn req_login(lr: LoginRequest) -> std::result::Result<LoginResponse, Status> {
@@ -83,7 +84,7 @@ pub fn create_jwt(usrname: &str, role: &Role) -> Result<LoginResponse, Error> {
     })
 }
 
-pub fn validate_jwt(token: Option<&str>) -> Result<Token, ApiKeyError> {
+pub fn validate_jwt(token: Option<&str>) -> Result<self::Token, ApiKeyError> {
     match token {
         Some(token) => {
             match decode::<Claims>(
@@ -105,6 +106,22 @@ pub struct Token {
     pub token: String,
 }
 
+use rocket::outcome::Outcome::{Failure, Success};
+
+#[rocket::async_trait]
+impl<'r> FromRequest<'r> for Token {
+    type Error = ApiKeyError;
+
+    async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
+        let token = request.headers().get_one("token");
+
+        match validate_jwt(token) {
+            Ok(v) => Success(v),
+            Err(e) => Failure((Status::Unauthorized, e)),
+        }
+    }
+}
+
 use rocket::fs::NamedFile;
 use std::path::PathBuf;
 
@@ -117,9 +134,6 @@ impl<'r> FromRequest<'r> for AuthRes {
     type Error = ApiKeyError;
 
     async fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
-        let token = request.headers().get_one("token");
-
-        use rocket::http::Status;
         use rocket::outcome::Outcome::*;
 
         match NamedFile::open(
@@ -128,11 +142,12 @@ impl<'r> FromRequest<'r> for AuthRes {
         .await
         {
             Ok(v) => Success(Self { res: Ok(v) }),
-            Err(_) => match validate_jwt(token) {
-                Ok(_) => Success(AuthRes {
-                    res: Ok(super::handlers::index().await.unwrap()),
+            Err(_) => match request.guard::<Token>().await {
+                Success(_) => Success(Self {
+                    res: super::handlers::get_index().await,
                 }),
-                Err(_) => Failure((Status::Unauthorized, ApiKeyError::Invalid)),
+                Failure(e) => Failure(e),
+                _ => Failure((Status::Unauthorized, ApiKeyError::Invalid)),
             },
         }
     }

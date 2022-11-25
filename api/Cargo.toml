@@ -19,7 +19,7 @@ serde_json = "1"
 anyhow = "1"
 mongodb = { version = "2.1", default-features = false, features = ["async-std-runtime"] }
 bson = { version = "2", features = ["chrono-0_4"] } # Needed for using chrono datetime in doc
-chrono = "0.4" # Used for setting DateTimes
+chrono = { version = "0.4", features = ["serde"]} # Used for setting DateTimes
 jsonwebtoken = "*"
 futures = "*"
 shared = { path = "../shared" }

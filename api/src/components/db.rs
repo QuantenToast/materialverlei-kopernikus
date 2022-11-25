@@ -51,8 +51,14 @@ pub async fn get_page_db(num: u32) -> Result<String> {
     match col.aggregate(pipeline, None).await {
         Ok(mut c) => {
             while let Some(result) = c.next().await {
-                // Use serde to deserialize into the MovieSummary struct:
-                let doc: Material = bson::from_document(result?)?;
+                // Use serde to deserialize into the Material struct:
+                let mut doc: Material = bson::from_document(result?)?;
+
+                if let Some(date) = doc.borrow_time {
+                    if date.1 < chrono::Local::today().naive_local() {
+                        doc.borrow_time = None;
+                    }
+                };
 
                 mats.push(MaterialRes {
                     id: doc.id.unwrap().to_hex(),
@@ -60,6 +66,9 @@ pub async fn get_page_db(num: u32) -> Result<String> {
                     description: doc.description,
                     pic: doc.pic,
                     num_available: doc.num_available,
+                    borrower: doc.borrower,
+                    borrow_time: doc.borrow_time,
+                    damage: doc.damage,
                 });
             }
         }
@@ -91,6 +100,7 @@ pub async fn get_user(usr: &String) -> Result<User> {
                 uname: doc.uname,
                 pwd: doc.pwd,
                 role: doc.role,
+                email: doc.email,
             })
         }
         None => Err(ApiKeyError::Invalid.into()),

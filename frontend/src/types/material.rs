@@ -1,3 +1,4 @@
+use chrono::NaiveDate;
 use serde_derive::{Deserialize, Serialize};
 use yew::Properties;
 
@@ -8,6 +9,9 @@ pub struct Material {
     pub description: String,
     pub pic: Option<String>,
     pub num_available: u32,
+    pub borrower: Option<String>,
+    pub borrow_time: Option<(NaiveDate, NaiveDate)>,
+    pub damage: Option<String>,
 }
 
 #[derive(PartialEq, Properties)]
