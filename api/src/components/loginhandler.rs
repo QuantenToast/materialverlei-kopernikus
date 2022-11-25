@@ -1,5 +1,5 @@
-use rocket::http::Status;
-use rocket::request::{self, FromRequest, Outcome, Request};
+use crate::components::err::ApiKeyError;
+use crate::components::user::Role;
 
 use serde_derive::{Deserialize, Serialize};
 
@@ -8,57 +8,9 @@ use jsonwebtoken::{
     decode, encode, errors::Error, Algorithm, DecodingKey, EncodingKey, Header, Validation,
 };
 
-use super::db::get_user;
-use super::err::ApiKeyError;
-
 use shared::auth::*;
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct User {
-    pub uname: String,
-    pub pwd: String,
-    pub role: Role,
-    pub email: String,
-}
-
-pub async fn req_login(lr: LoginRequest) -> std::result::Result<LoginResponse, Status> {
-    match get_user(&lr.username).await {
-        Ok(v) => {
-            if v.pwd != lr.password {
-                return Err(Status::Unauthorized);
-            }
-            create_jwt(&v.uname, &v.role)
-                .map(|login_response| login_response)
-                .map_err(|_| Status::NotAcceptable)
-        }
-        Err(_) => Err(Status::NotAcceptable),
-    }
-}
-
 const JWT_SECRET: &[u8] = b"verleiSecret123";
-
-#[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
-pub enum Role {
-    User,
-    Admin,
-}
-
-impl Role {
-    pub fn to_string(&self) -> String {
-        match &self {
-            Self::Admin => String::from("Admin"),
-            Self::User => String::from("User"),
-        }
-    }
-
-    #[allow(dead_code)]
-    pub fn from_str(s: &str) -> Role {
-        match s {
-            "Admin" => Role::Admin,
-            _ => Role::User,
-        }
-    }
-}
 
 #[derive(Serialize, Deserialize)]
 pub struct Claims {
@@ -84,6 +36,8 @@ pub fn create_jwt(usrname: &str, role: &Role) -> Result<LoginResponse, Error> {
     })
 }
 
+use crate::routing::guards::Token;
+
 pub fn validate_jwt(token: Option<&str>) -> Result<self::Token, ApiKeyError> {
     match token {
         Some(token) => {
@@ -99,56 +53,5 @@ pub fn validate_jwt(token: Option<&str>) -> Result<self::Token, ApiKeyError> {
             }
         }
         None => Err(ApiKeyError::Missing),
-    }
-}
-
-pub struct Token {
-    pub token: String,
-}
-
-use rocket::outcome::Outcome::{Failure, Success};
-
-#[rocket::async_trait]
-impl<'r> FromRequest<'r> for Token {
-    type Error = ApiKeyError;
-
-    async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
-        let token = request.headers().get_one("token");
-
-        match validate_jwt(token) {
-            Ok(v) => Success(v),
-            Err(e) => Failure((Status::Unauthorized, e)),
-        }
-    }
-}
-
-use rocket::fs::NamedFile;
-use std::path::PathBuf;
-
-pub struct AuthRes {
-    pub res: Result<NamedFile, Status>,
-}
-
-#[rocket::async_trait]
-impl<'r> FromRequest<'r> for AuthRes {
-    type Error = ApiKeyError;
-
-    async fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
-        use rocket::outcome::Outcome::*;
-
-        match NamedFile::open(
-            PathBuf::from("static").join(request.param::<PathBuf>(0).unwrap().unwrap()),
-        )
-        .await
-        {
-            Ok(v) => Success(Self { res: Ok(v) }),
-            Err(_) => match request.guard::<Token>().await {
-                Success(_) => Success(Self {
-                    res: super::handlers::get_index().await,
-                }),
-                Failure(e) => Failure(e),
-                _ => Failure((Status::Unauthorized, ApiKeyError::Invalid)),
-            },
-        }
     }
 }

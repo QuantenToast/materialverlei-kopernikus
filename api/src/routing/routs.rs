@@ -1,7 +1,6 @@
-use super::{
-    db::get_page_db,
-    loginhandler::{req_login, AuthRes},
-};
+use super::helpers::*;
+use crate::db::material::get_page_db;
+use crate::{components::user::req_login, routing::guards::AuthRes};
 use rocket::fs::NamedFile;
 use rocket::http::Status;
 use rocket::serde::json::Json;
@@ -30,16 +29,4 @@ pub async fn authenticate(lr: Json<LoginRequest>) -> Result<Json<LoginResponse>,
 #[get("/<path..>", rank = 2)]
 pub async fn get_file(path: PathBuf, pauth: AuthRes) -> Result<NamedFile, Status> {
     Ok(pauth.res?)
-}
-
-pub async fn get_index() -> Result<NamedFile, Status> {
-    NamedFile::open("static/index.html")
-        .await
-        .map_err(|_| rocket::http::Status::NotFound)
-}
-
-fn error_status(e: anyhow::Error) -> Status {
-    match e {
-        _ => Status::BadRequest,
-    }
 }
