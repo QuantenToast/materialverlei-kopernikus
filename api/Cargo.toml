@@ -11,7 +11,7 @@ path = "src/main.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rocket = { version = "0.5.0-rc.2", features = ["json"] }
+rocket = { version = "0.5.0-rc.2", features = ["json", "tls"] }
 rocket_contrib = "*"
 serde = "1"
 serde_derive = "1"
@@ -23,3 +23,5 @@ chrono = { version = "0.4", features = ["serde"]} # Used for setting DateTimes
 jsonwebtoken = "*"
 futures = "*"
 shared = { path = "../shared" }
+sha3 = "0.10.5"
+hex = "0.4.3"

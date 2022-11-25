@@ -7,7 +7,7 @@ use parking_lot::RwLock;
 use serde::{de::DeserializeOwned, Serialize};
 use shared::types::auth::Token;
 
-const API_ROOT: &str = "http://81.169.248.14/";
+const API_ROOT: &str = "https://81.169.248.14/";
 const TOKEN_KEY: &str = "yew.token";
 
 lazy_static! {

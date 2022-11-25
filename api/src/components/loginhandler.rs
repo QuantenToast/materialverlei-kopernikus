@@ -10,48 +10,28 @@ use jsonwebtoken::{
 
 use shared::auth::*;
 
-const JWT_SECRET: &[u8] = b"verleiSecret123";
-
-#[derive(Serialize, Deserialize)]
-pub struct Claims {
-    sub: String,
-    role: String,
-    exp: usize,
+#[derive(Debug, Serialize, Deserialize)]
+pub struct User {
+    pub uname: String,
+    pub pwd: String,
+    pub role: Role,
 }
 
-pub fn create_jwt(usrname: &str, role: &Role) -> Result<LoginResponse, Error> {
-    let expiration = Utc::now()
-        .checked_add_signed(chrono::Duration::weeks(2))
-        .expect("valid timestamp")
-        .timestamp();
-
-    let claims = Claims {
-        sub: usrname.to_owned(),
-        role: role.to_string(),
-        exp: expiration as usize,
-    };
-    let header = Header::new(Algorithm::HS256);
-    encode(&header, &claims, &EncodingKey::from_secret(JWT_SECRET)).map(|v| LoginResponse {
-        token: shared::auth::Token { token: v },
-    })
-}
-
-use crate::routing::guards::Token;
-
-pub fn validate_jwt(token: Option<&str>) -> Result<self::Token, ApiKeyError> {
-    match token {
-        Some(token) => {
-            match decode::<Claims>(
-                &token,
-                &DecodingKey::from_secret(JWT_SECRET),
-                &Validation::new(Algorithm::HS256),
-            ) {
-                Ok(_) => Ok(Token {
-                    token: token.to_string(),
-                }),
-                Err(_) => Err(ApiKeyError::Invalid),
+pub async fn req_login(lr: LoginRequest) -> std::result::Result<LoginResponse, Status> {
+    match get_user(&lr.username).await {
+        Ok(v) => {
+            use hex;
+            use sha3::{Digest, Sha3_256};
+            let mut hasher = Sha3_256::new();
+            hasher.update(v.pwd.as_bytes());
+            let pwd = hex::encode(hasher.finalize());
+            if pwd != lr.password {
+                return Err(Status::Unauthorized);
             }
+            create_jwt(&v.uname, &v.role)
+                .map(|login_response| login_response)
+                .map_err(|_| Status::NotAcceptable)
         }
-        None => Err(ApiKeyError::Missing),
+        Err(_) => Err(Status::NotAcceptable),
     }
 }
